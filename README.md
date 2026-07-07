@@ -39,10 +39,28 @@ Abra `http://localhost:8080` (de preferência no celular, na mesma rede, ou use 
 
 Os MP3 são decodificados via WebAudio (`decodeAudioData`) no **primeiro toque em qualquer lugar da tela**, o que contorna as políticas de autoplay dos navegadores mobile. Se o botão DANÇAR for a primeira interação, a música entra sincronizada assim que a decodificação termina.
 
+## 📦 App Android (Capacitor)
+
+O app é o mesmo `index.html` rodando num WebView. `index.html` + `assets/` na raiz são a fonte; `npm run build` copia para `www/` (webDir do Capacitor).
+
+```bash
+# uma vez / sempre que mudar o jogo
+npm run build && npx cap sync android
+
+# builds (o java do sistema não está no PATH; use o JDK do Android Studio)
+export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+cd android
+./gradlew assembleDebug   # APK de teste  → app/build/outputs/apk/debug/app-debug.apk
+./gradlew bundleRelease   # AAB p/ a Play → app/build/outputs/bundle/release/app-release.aab
+```
+
+**Assinatura:** copie `android/keystore.properties.example` → `android/keystore.properties` (gitignored) e gere o keystore com `keytool` (comando no próprio arquivo). Guarde o keystore e as senhas para sempre. appId: `io.github.jmarcos.patinhodancador` · targetSdk 36.
+
 ## 🗺️ Roadmap → Play Store
 
-- [ ] Empacotar com **Capacitor** (`@capacitor/android`) — os assets locais funcionam direto no WebView
-- [ ] Ícone adaptativo + splash screen
+- [x] Empacotar com **Capacitor** (`@capacitor/android`) — os assets locais funcionam direto no WebView
+- [ ] Gerar keystore de upload e configurar `android/keystore.properties`
+- [ ] Ícone adaptativo + splash screen (`@capacitor/assets` a partir de um PNG fonte)
 - [ ] Orientação retrato travada
 - [ ] Conta Google Play Developer + política **Projetado para a Família** (público-alvo < 5 anos, política de privacidade, formulário de classificação etária)
 - [ ] Teste fechado (12+ testadores / 14 dias, exigência para contas pessoais novas) e publicação
