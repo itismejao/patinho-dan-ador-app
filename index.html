@@ -1154,13 +1154,20 @@ muteBtn.addEventListener('pointerdown', ()=>{
 // ---------- Loop ----------
 function resize(){
   const w = window.innerWidth, h = window.innerHeight;
-  renderer.setSize(w, h, false);
+  // updateStyle=true (default): o Three define canvas.style em px = viewport.
+  // Sem isso, alguns WebViews Android exibem o canvas no tamanho do buffer
+  // (largura*devicePixelRatio), mostrando só um recorte ampliado da cena.
+  renderer.setSize(w, h);
   camera.aspect = w/h;
   camera.position.z = camera.aspect < 0.8 ? 12.8 : 9.8;
   camera.updateProjectionMatrix();
 }
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', ()=> setTimeout(resize, 250));
 resize();
+// O WebView às vezes finaliza o layout depois do 1º resize: re-sincroniza.
+window.addEventListener('load', resize);
+requestAnimationFrame(resize);
 
 const clock = new THREE.Clock();
 function loop(){

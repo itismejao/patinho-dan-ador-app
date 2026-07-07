@@ -1,0 +1,22 @@
+{
+  "name": "patinho-dancador",
+  "version": "1.0.0",
+  "description": "Joguinho mobile 3D papercraft para crianças pequenas — o Patinho Dançador",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf www && mkdir -p www && cp index.html www/ && cp -r assets www/",
+    "serve": "npx serve .",
+    "sync": "npm run build && cap sync",
+    "open:android": "cap open android"
+  },
+  "author": "João Marcos",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5"
+  }
+}
