@@ -83,18 +83,6 @@ npx cap open ios         # abre no Xcode (p/ publicar: Product → Archive)
 
 Capacitor 8 usa **Swift Package Manager** (não CocoaPods). O plugin nativo `ScreenPin` é só Android — no iOS a trava vira no-op (o equivalente é o **Acesso Guiado**, ativado à mão pelo usuário). Emojis aparecem como "?" **só no simulador** (fonte de emoji reduzida do Simulator); no iPhone real renderizam normal.
 
-## 🗺️ Roadmap → lojas
-
-- [x] Empacotar com **Capacitor** (Android + iOS) — os assets locais funcionam direto no WebView
-- [x] Ícone adaptativo + splash screen próprios (`@capacitor/assets` a partir de `resources/`)
-- [x] Gerar keystore de upload e configurar `android/keystore.properties` (fora do repo; **guardar para sempre**)
-- **Google Play:**
-  - [ ] Conta Google Play Developer + política **Projetado para a Família** (público-alvo < 5 anos, política de privacidade, formulário de classificação etária)
-  - [ ] Teste fechado (12+ testadores / 14 dias, exigência para contas pessoais novas) e publicação
-- **App Store:**
-  - [ ] Conta Apple Developer (US$ 99/ano) + assinatura de distribuição (Xcode)
-  - [ ] Registro no App Store Connect + **categoria Kids** (parental gate, sem analytics/ads de terceiros) e publicação
-
 ## 🛠️ Stack
 
 Three.js r128 (CDN) · WebAudio API · HTML/CSS/JS puro, sem build
