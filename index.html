@@ -41,35 +41,49 @@
     transition:opacity .6s;white-space:nowrap;
   }
 
+  /* Colcha de retalhos: 6 retalhos (2 fileiras de 3) ocupando a largura do
+     dispositivo; base bege de tecido, costura tracejada e giro levinho em
+     cada retalho pra dar cara de colcha costurada à mão. */
   #actions{
-    position:fixed;left:0;right:0;bottom:max(14px, env(safe-area-inset-bottom));
-    display:grid;grid-template-columns:repeat(6, auto);justify-content:center;
-    gap:clamp(8px,2.4vw,16px);padding:0 10px;z-index:5;
-  }
-  /* Mobile-first: no celular, 3 botões por linha → 3 em cima, 3 embaixo (nada de botão solto) */
-  @media (max-width: 600px){
-    #actions{ grid-template-columns:repeat(3, auto); }
+    position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;
+    display:grid;grid-template-columns:repeat(3, 1fr);
+    gap:clamp(6px,1.8vw,12px);
+    padding:clamp(9px,2.4vw,15px) clamp(9px,2.4vw,15px) calc(clamp(9px,2.4vw,15px) + env(safe-area-inset-bottom));
+    background:
+      repeating-linear-gradient(45deg, rgba(255,255,255,.06) 0 9px, rgba(0,0,0,.035) 9px 18px),
+      #E9D6AE;
+    border-radius:22px 22px 0 0;
+    box-shadow:0 -8px 24px rgba(0,0,0,.2), inset 0 3px 0 rgba(255,255,255,.45);
+    z-index:5;
   }
   .btn{
-    width:clamp(52px,14vw,84px);height:clamp(52px,14vw,84px);
-    border:none;border-radius:26px;cursor:pointer;
-    font-size:clamp(26px,7vw,38px);line-height:1;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    position:relative;
+    width:100%;min-height:clamp(66px,11vh,110px);
+    border:none;border-radius:16px;cursor:pointer;
+    font-size:clamp(30px,8.5vw,46px);line-height:1;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(2px,1vw,6px);
     color:#fff;font-family:inherit;font-weight:800;
-    box-shadow:0 6px 0 rgba(0,0,0,.18), inset 0 -4px 0 rgba(0,0,0,.12), inset 0 3px 0 rgba(255,255,255,.35);
-    transition:transform .08s;
-    user-select:none;
+    transform:rotate(var(--rot,0deg)) scale(1.015);   /* giro handmade + overlap das costuras */
+    box-shadow:inset 0 -6px 0 rgba(0,0,0,.15), inset 0 4px 0 rgba(255,255,255,.4), 0 3px 6px rgba(0,0,0,.2);
+    transition:filter .08s, box-shadow .08s;
+    user-select:none;overflow:hidden;
   }
-  .btn small{font-size:clamp(9px,2.4vw,12px);letter-spacing:.4px;text-shadow:0 1px 0 rgba(0,0,0,.2);}
-  .btn:active{transform:translateY(4px) scale(.96);box-shadow:0 2px 0 rgba(0,0,0,.18), inset 0 -2px 0 rgba(0,0,0,.12);}
-  .b-quack{background:var(--beak);}
-  .b-dance{background:var(--pink);}
+  /* costura tracejada (stitch) de cada retalho */
+  .btn::before{
+    content:"";position:absolute;inset:clamp(5px,1.5vw,9px);
+    border:2px dashed rgba(255,255,255,.8);border-radius:10px;pointer-events:none;
+  }
+  .btn small{font-size:clamp(11px,3.2vw,16px);letter-spacing:.6px;text-shadow:0 1px 0 rgba(0,0,0,.28);}
+  .btn:active{filter:brightness(1.08);box-shadow:inset 0 -2px 0 rgba(0,0,0,.15), inset 0 2px 0 rgba(255,255,255,.4), 0 1px 3px rgba(0,0,0,.2);}
+  /* cada retalho: cor + um giro levemente diferente */
+  .b-quack{--rot:-2deg;background:var(--beak);}
+  .b-dance{--rot:1.5deg;background:var(--pink);}
   .b-dance.playing{animation:pulse .5s infinite alternate;}
-  @keyframes pulse{from{transform:scale(1);}to{transform:scale(1.08);}}
-  .b-flap{background:var(--green);}
-  .b-fly{background:var(--blue);}
-  .b-dive{background:var(--teal);}
-  .b-egg{background:#B98BD9;}
+  @keyframes pulse{from{transform:rotate(var(--rot,0deg)) scale(1.015);}to{transform:rotate(var(--rot,0deg)) scale(1.08);}}
+  .b-flap{--rot:-1deg;background:var(--green);}
+  .b-fly{--rot:2deg;background:var(--blue);}
+  .b-dive{--rot:-1.5deg;background:var(--teal);}
+  .b-egg{--rot:1.2deg;background:#B98BD9;}
 
   #mute{
     position:fixed;top:calc(env(safe-area-inset-top) + 14px);right:12px;z-index:6;
