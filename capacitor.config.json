@@ -1,9 +1,0 @@
-{
-  "appId": "io.github.jmarcos.patinhodancador",
-  "appName": "Patinho Dançador",
-  "webDir": "www",
-  "backgroundColor": "#8FD8F7",
-  "android": {
-    "backgroundColor": "#8FD8F7"
-  }
-}

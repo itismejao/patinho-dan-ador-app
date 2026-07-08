@@ -2,7 +2,14 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<!-- "Adicionar à Tela de Início" no iOS: abre tela cheia (sem UI do Safari) com o ícone do patinho -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Patinho Dançador">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#8FD8F7">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <title>Patinho Dançador 🐥</title>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
 <style>
@@ -12,12 +19,13 @@
     --paper:#FFFDF5; --ink:#4A3B2A;
   }
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-  html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;}
+  html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;
+    overscroll-behavior:none;-webkit-touch-callout:none;}
   body{font-family:'Baloo 2','Comic Sans MS',system-ui,sans-serif;background:#8FD8F7;}
   #scene{position:fixed;inset:0;}
 
   #title{
-    position:fixed;top:14px;left:50%;transform:translateX(-50%) rotate(-2deg);
+    position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:50%;transform:translateX(-50%) rotate(-2deg);
     background:var(--paper);color:var(--ink);
     padding:6px 22px;border-radius:16px;white-space:nowrap;
     font-size:clamp(20px,5.4vw,32px);font-weight:800;letter-spacing:.5px;
@@ -27,7 +35,7 @@
   #title span{color:var(--beak);}
 
   #hint{
-    position:fixed;top:calc(14px + clamp(46px,10vw,60px));left:50%;transform:translateX(-50%);
+    position:fixed;top:calc(env(safe-area-inset-top) + 14px + clamp(46px,10vw,60px));left:50%;transform:translateX(-50%);
     color:#fff;font-weight:600;font-size:clamp(13px,3.6vw,17px);
     text-shadow:0 2px 0 rgba(0,0,0,.15);opacity:.95;z-index:5;pointer-events:none;
     transition:opacity .6s;white-space:nowrap;
@@ -35,11 +43,15 @@
 
   #actions{
     position:fixed;left:0;right:0;bottom:max(14px, env(safe-area-inset-bottom));
-    display:flex;justify-content:center;gap:clamp(8px,2.4vw,16px);
-    padding:0 10px;z-index:5;
+    display:grid;grid-template-columns:repeat(6, auto);justify-content:center;
+    gap:clamp(8px,2.4vw,16px);padding:0 10px;z-index:5;
+  }
+  /* Mobile-first: no celular, 3 botões por linha → 3 em cima, 3 embaixo (nada de botão solto) */
+  @media (max-width: 600px){
+    #actions{ grid-template-columns:repeat(3, auto); }
   }
   .btn{
-    width:clamp(58px,15vw,84px);height:clamp(58px,15vw,84px);
+    width:clamp(52px,14vw,84px);height:clamp(52px,14vw,84px);
     border:none;border-radius:26px;cursor:pointer;
     font-size:clamp(26px,7vw,38px);line-height:1;
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
@@ -57,13 +69,36 @@
   .b-flap{background:var(--green);}
   .b-fly{background:var(--blue);}
   .b-dive{background:var(--teal);}
+  .b-egg{background:#B98BD9;}
 
   #mute{
-    position:fixed;top:14px;right:12px;z-index:6;
+    position:fixed;top:calc(env(safe-area-inset-top) + 14px);right:12px;z-index:6;
     width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
     background:var(--paper);font-size:22px;
     box-shadow:0 4px 0 rgba(0,0,0,.12), inset 0 0 0 3px #fff;
   }
+
+  /* Cadeado (trava de criança) — canto superior esquerdo */
+  #lock{
+    position:fixed;top:calc(env(safe-area-inset-top) + 14px);left:12px;z-index:20;
+    width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+    background:var(--paper);font-size:22px;overflow:hidden;
+    box-shadow:0 4px 0 rgba(0,0,0,.12), inset 0 0 0 3px #fff;
+    display:flex;align-items:center;justify-content:center;
+    user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
+  }
+  #lock.on{ background:#F2C14E; box-shadow:0 4px 0 rgba(0,0,0,.18), inset 0 0 0 3px #fff; }
+  #lock .ic{ position:relative;z-index:2;line-height:1; }
+  #lock .fill{ position:absolute;left:0;bottom:0;width:100%;height:0%;
+    background:rgba(109,203,90,.65);z-index:1;transition:height .05s linear; }
+
+  #lockMsg{
+    position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 70px);transform:translateX(-50%);
+    background:rgba(0,0,0,.6);color:#fff;padding:8px 16px;border-radius:999px;
+    font-weight:700;font-size:clamp(12px,3.4vw,15px);z-index:19;pointer-events:none;
+    opacity:0;transition:opacity .3s;white-space:nowrap;text-align:center;
+  }
+  #lockMsg.show{ opacity:1; }
 
   .fx{
     position:fixed;z-index:4;pointer-events:none;
@@ -89,12 +124,17 @@
 <div id="title">Patinho <span>Dançador</span> 🐥</div>
 <div id="hint">Toque no patinho ou nos botões!</div>
 <button id="mute" aria-label="Som ligado/desligado">🔊</button>
+<button id="lock" aria-label="Travar a tela para a criança">
+  <span class="ic">🔓</span><div class="fill"></div>
+</button>
+<div id="lockMsg"></div>
 <div id="actions">
   <button class="btn b-quack" data-act="quack">🗣️<small>QUACK</small></button>
   <button class="btn b-dance" data-act="dance">🎵<small>DANÇAR</small></button>
   <button class="btn b-flap"  data-act="flap">🪽<small>ASAS</small></button>
   <button class="btn b-fly"   data-act="fly">☁️<small>VOAR</small></button>
   <button class="btn b-dive"  data-act="dive">💦<small>SPLASH</small></button>
+  <button class="btn b-egg"   data-act="egg">🥚<small>OVO</small></button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -150,7 +190,7 @@ const island = mesh(new THREE.CylinderGeometry(9, 10, 0.8, 14), 0x8FD65E, {recei
 island.position.y = -0.4;
 scene.add(island);
 
-const POND = new THREE.Vector3(3.1, 0, 0.9);
+const POND = new THREE.Vector3(0, 0, 2.6);   // à frente do pato (embaixo na tela) — de lado saía do quadro
 const pond = mesh(new THREE.CylinderGeometry(1.9, 1.9, 0.12, 12), 0x57C7E3, {shadow:false, receive:true, edgeOpacity:0.35});
 pond.position.set(POND.x, 0.02, POND.z);
 scene.add(pond);
@@ -674,6 +714,25 @@ function resetFamily(){
 resetFamily();
 family.wait = 3;
 
+// --- Ovo do patinho (escondido até a ação "botar ovo") ---
+const EGG_Y = 0.3;
+const egg = mesh(new THREE.SphereGeometry(0.26, 8, 6), 0xFFF3D6, {edgeOpacity:0.2});
+egg.scale.set(0.82, 1.08, 0.82);
+egg.position.set(0, EGG_Y, 0.7);
+egg.visible = false;
+scene.add(egg);
+
+// --- Patinhos que nasceram dos ovos e saem passeando pelo gramado ---
+const wanderers = [];
+const W_SCALE = 0.36, W_BASE = 0.13, W_MAX = 6;
+function spawnWanderer(x, z){
+  const d = miniDuck(W_SCALE);
+  d.position.set(x, W_BASE, z);
+  scene.add(d);
+  wanderers.push({d, x, z, heading:Math.random()*Math.PI*2, speed:0.55+Math.random()*0.5, turn:1+Math.random()*2, ph:Math.random()*6});
+  if(wanderers.length > W_MAX){ const old = wanderers.shift(); scene.remove(old.d); }
+}
+
 // --- Atualização de tudo que é vivo no cenário ---
 function updateLife(dt, t){
   sparkles.forEach(s=>{ s.m.material.opacity = 0.18 + 0.32*(0.5 + 0.5*Math.sin(t*2 + s.ph)); });
@@ -728,6 +787,20 @@ function updateLife(dt, t){
       m.d.position.y = 0.36*m.s + Math.abs(Math.sin(t*7 + m.ph))*0.05;
     });
     if(Math.abs(family.g.position.x) > 17) resetFamily();
+  }
+
+  // Patinhos recém-nascidos passeando: caminham, viram sozinhos, desviam da beira e do laguinho
+  for(const w of wanderers){
+    w.turn -= dt;
+    if(w.turn <= 0){ w.turn = 1.4 + Math.random()*2.4; w.heading += (Math.random()-0.5)*1.5; }
+    if(Math.hypot(w.x, w.z) > 7) w.heading = Math.atan2(-w.z, -w.x);        // volta pra ilha
+    const pdx = w.x - POND.x, pdz = w.z - POND.z;
+    if(Math.hypot(pdx, pdz) < 2.4) w.heading = Math.atan2(pdz, pdx);         // foge do laguinho
+    w.x += Math.cos(w.heading)*w.speed*dt;
+    w.z += Math.sin(w.heading)*w.speed*dt;
+    w.d.position.set(w.x, W_BASE + Math.abs(Math.sin(t*8 + w.ph))*0.05, w.z);
+    w.d.rotation.y = Math.atan2(Math.cos(w.heading), Math.sin(w.heading));
+    w.d.rotation.z = Math.sin(t*8 + w.ph)*0.12;
   }
 }
 
@@ -800,6 +873,8 @@ const S = {
     tone({type:'sine', f0:180, f1:60, dur:0.3, vol:0.2});
   },
   pop(){ tone({type:'triangle', f0:600, f1:900, dur:0.08, vol:0.2}); },
+  crack(){ tone({type:'square', f0:220, f1:90, dur:0.06, vol:0.16, filter:1400}); noise({dur:0.05, vol:0.1, filter:2600, hp:true}); },
+  peep(){ tone({type:'sine', f0:1300, f1:1900, dur:0.1, vol:0.14}); tone({type:'sine', f0:1500, f1:2100, dur:0.1, vol:0.13, delay:0.12}); },
   tada(){ [523,659,784,1047].forEach((f,i)=> tone({type:'triangle', f0:f, f1:f, dur:0.3, vol:0.18, delay:i*0.06})); }
 };
 
@@ -811,10 +886,18 @@ let quackBuffer = null, quackDecoding = false;
 const danceAudio = new Audio(AUDIO_URLS.dance);   // último recurso
 danceAudio.preload = 'auto';
 
+// XHR (não fetch): no WKWebView do Capacitor iOS o fetch do esquema capacitor://
+// falha com status 0; XHR arraybuffer traz os bytes normalmente. Funciona igual
+// no Android e no navegador. Não checar xhr.status (é 0 no esquema custom) — o
+// veredito é ter arraybuffer com bytes.
 function loadBuffer(url, onOk, onFail){
-  fetch(url)
-    .then(r => { if(!r.ok) throw 0; return r.arrayBuffer(); })
-    .then(ab => {
+  try{
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'arraybuffer';
+    xhr.onload = () => {
+      const ab = xhr.response;
+      if(!ab || !ab.byteLength){ onFail(); return; }
       const ac = ctx();
       let handled = false;
       const ok = buf => { if(handled || !buf) return; handled = true; onOk(buf); };
@@ -823,8 +906,10 @@ function loadBuffer(url, onOk, onFail){
         const p = ac.decodeAudioData(ab, ok, fail);
         if(p && p.then) p.then(ok).catch(fail);
       }catch(e){ fail(); }
-    })
-    .catch(onFail);
+    };
+    xhr.onerror = onFail;
+    xhr.send();
+  }catch(e){ onFail(); }
 }
 function ensureDanceBuffer(){
   if(danceBuffer || danceDecoding) return;
@@ -920,7 +1005,7 @@ function makeSplash(pos){
 
 // ---------- Máquina de ações ----------
 let action = null;
-const DUR = {quack:1.1, flap:1.5, fly:2.4, dive:3.4};
+const DUR = {quack:1.1, flap:1.5, fly:2.4, dive:3.4, egg:4.6};
 let noteTimer = 0;
 
 function startAction(name){
@@ -948,6 +1033,7 @@ function startAction(name){
   }
   if(name==='flap'){ S.flap(); }
   if(name==='fly'){ S.whoosh(); }
+  if(name==='egg'){ egg.visible = false; S.pop(); }
 }
 
 const ease = t => t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;
@@ -1072,6 +1158,62 @@ function updateDuck(dt, time){
       }
     }
 
+    if(n==='egg'){
+      const tr = Math.sin(action.t*34)*0.05;            // tremidinha rápida
+
+      if(p < 0.12){
+        // agacha pra botar o ovo
+        const q = p/0.12;
+        py = DUCK_Y - 0.15*q;
+        scaleY = 1 - 0.12*q;
+        headTilt = 0.2*q;
+      } else {
+        // ovo botado: fica agachado tremendo, olhando pro ovo
+        pz = -0.28;
+        py = DUCK_Y - 0.12 + tr;
+        rz = tr*1.5;
+        scaleY = 0.9;
+        headTilt = 0.28 + Math.sin(action.t*6)*0.05;
+        beakOpen = Math.max(0, Math.sin(action.t*7))*0.2;
+      }
+
+      // bota o ovo (uma vez só)
+      if(!action.laid && p >= 0.12){
+        action.laid = true; action.crackT = 0;
+        egg.position.set(0, EGG_Y, 0.7);
+        egg.rotation.set(0, 0, 0);
+        egg.visible = true;
+        S.pop(); fx('🥚');
+      }
+
+      // o ovo balança e faz barulho de rachar (intensidade cresce)
+      if(action.laid && !action.hatched){
+        const sh = Math.min((p-0.12)/0.6, 1);
+        egg.rotation.z = Math.sin(action.t*26)*0.35*sh;
+        egg.position.y = EGG_Y + Math.abs(Math.sin(action.t*22))*0.05*sh;
+        action.crackT += dt;
+        if(action.crackT > 0.45 - 0.25*sh){ action.crackT = 0; S.crack(); if(sh>0.4) fx('✨'); }
+      }
+
+      // rachou! nasce o patinho que sai passeando
+      if(!action.hatched && p >= 0.82){
+        action.hatched = true;
+        egg.visible = false;
+        spawnWanderer(egg.position.x, egg.position.z);
+        S.peep(); S.quackBig(); S.tada();
+        fx('🐥', false, 90); fx('💛'); fx('⭐'); fx('🎉');
+      }
+
+      // o pato comemora o nascimento
+      if(action.hatched){
+        const q = (p-0.82)/0.18;
+        py = DUCK_Y + Math.sin(q*Math.PI)*0.35;
+        pz = -0.28*(1-q);
+        scaleY = 1 + Math.sin(q*Math.PI)*0.06;
+        headTilt = -0.1;
+      }
+    }
+
     if(p>=1) action = null;
   }
 
@@ -1110,7 +1252,7 @@ function tapDuck(clientX, clientY){
   pointer.y = -(clientY/window.innerHeight)*2 + 1;
   raycaster.setFromCamera(pointer, camera);
   if(raycaster.intersectObject(duck, true).length){
-    const acts = ['quack','dance','flap','fly','dive'];
+    const acts = ['quack','dance','flap','fly','dive','egg'];
     startAction(acts[Math.floor(Math.random()*acts.length)]);
     fx('\u{1F49B}');
   }
@@ -1150,6 +1292,84 @@ muteBtn.addEventListener('pointerdown', ()=>{
   if(danceGain) danceGain.gain.value = muted ? 0 : 0.9;
   muteBtn.textContent = muted ? '🔇' : '🔊';
 });
+
+// ---------- Trava de criança (cadeado) ----------
+// Travado = o app tenta ao máximo NÃO deixar a criança sair:
+//   • "Fixar tela" nativo do Android (bloqueia Home/Recentes) via plugin ScreenPin
+//   • prende o botão VOLTAR do Android (truque de histórico)
+//   • bloqueia gestos de sair (menu de contexto, recarregar)
+// O joguinho continua 100% jogável; só o cadeado precisa ser segurado p/ destravar.
+let locked = false;
+
+// Ponte para o plugin nativo ScreenPin (só existe no app Android; no navegador é no-op)
+function screenPin(on){
+  try{
+    const C = window.Capacitor;
+    if(!C) return;
+    const P = (C.Plugins && C.Plugins.ScreenPin) ||
+              (typeof C.registerPlugin === 'function' && C.registerPlugin('ScreenPin'));
+    if(P){ on ? P.pin() : P.unpin(); }
+  }catch(e){}
+}
+const lockBtn  = document.getElementById('lock');
+const lockIc   = lockBtn.querySelector('.ic');
+const lockFill = lockBtn.querySelector('.fill');
+const lockMsg  = document.getElementById('lockMsg');
+const HOLD_MS  = 1600;                 // segurar p/ destravar (criança não consegue sozinha)
+let holdRAF = null, msgTimer = null;
+
+// Botão VOLTAR: mantém sempre um estado "isca" no histórico. Se a criança
+// aperta VOLTAR, o app volta pra isca em vez de fechar, e nós rearmamos.
+function armBackGuard(){ try{ history.pushState(null, '', location.href); }catch(e){} }
+armBackGuard();
+window.addEventListener('popstate', ()=>{
+  if(locked){ armBackGuard(); flashLockMsg('🔒 Tela travada — segure o cadeado para destravar'); }
+});
+
+function flashLockMsg(text){
+  lockMsg.textContent = text;
+  lockMsg.classList.add('show');
+  clearTimeout(msgTimer);
+  msgTimer = setTimeout(()=> lockMsg.classList.remove('show'), 2600);
+}
+
+function setLocked(v){
+  locked = v;
+  lockBtn.classList.toggle('on', v);
+  lockIc.textContent = v ? '🔒' : '🔓';
+  lockBtn.setAttribute('aria-label', v ? 'Segure para destravar' : 'Travar a tela para a criança');
+  screenPin(v);                          // fixa/desafixa a tela no Android
+  if(v){ armBackGuard(); flashLockMsg('🔒 Travado! Segure o cadeado para destravar'); }
+  else { flashLockMsg('🔓 Destravado'); }
+}
+
+function cancelHold(){
+  if(holdRAF){ cancelAnimationFrame(holdRAF); holdRAF = null; }
+  lockFill.style.height = '0%';
+}
+function startHold(){                    // destravar exige segurar ~1.6s
+  cancelHold();
+  const t0 = performance.now();
+  const step = ()=>{
+    const f = Math.min((performance.now()-t0)/HOLD_MS, 1);
+    lockFill.style.height = (f*100)+'%';
+    if(f >= 1){ cancelHold(); setLocked(false); return; }
+    holdRAF = requestAnimationFrame(step);
+  };
+  holdRAF = requestAnimationFrame(step);
+}
+
+lockBtn.addEventListener('pointerdown', e=>{
+  e.stopPropagation(); e.preventDefault();
+  if(!locked) setLocked(true);           // travar = um toque
+  else startHold();                      // destravar = segurar
+});
+lockBtn.addEventListener('pointerup',     e=>{ e.stopPropagation(); cancelHold(); });
+lockBtn.addEventListener('pointerleave',  ()=> cancelHold());
+lockBtn.addEventListener('pointercancel', ()=> cancelHold());
+
+// Reforço anti-saída: sem menu de contexto (segurar) nem recarregar por gesto
+window.addEventListener('contextmenu', e=> e.preventDefault());
 
 // ---------- Loop ----------
 function resize(){
